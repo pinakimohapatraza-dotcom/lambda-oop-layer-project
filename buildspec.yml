@@ -16,7 +16,7 @@ phases:
   build:
     commands:
       - 'echo "Packaging Lambda Layer..."'
-      - 'cd layers/common'
+      - 'cd layers/common-layer'
       - 'zip -r ../../common-layer.zip python'
       - 'cd ../..'
 
