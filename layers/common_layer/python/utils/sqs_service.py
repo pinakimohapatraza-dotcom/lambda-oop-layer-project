@@ -5,7 +5,7 @@ import json
 class SQSService:
     def __init__(self):
         self.client = boto3.client("sqs")
-        self.queue_url = os.env["QUEUE_URL"]
+        self.queue_url = os.environ["QUEUE_URL"]
 
     
     def send_message(self, payload):
