@@ -1,0 +1,55 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+
+  build:
+    commands:
+      - echo Packaging Lambda Layer
+      - cd layers/common
+      - zip -r ../../common-layer.zip python
+      - cd ../..
+
+      - echo Packaging User Lambda
+      - cd lambdas/user_service
+      - zip -r ../../user-service.zip .
+      - cd ../..
+
+      - echo Packaging Order Lambda
+      - cd lambdas/order_service
+      - zip -r ../../order-service.zip .
+      - cd ../..
+
+  post_build:
+    commands:
+      - echo Publishing New Layer Version
+
+      - |
+        LAYER_VERSION=$(aws lambda publish-layer-version \
+          --layer-name common-utils-layer \
+          --zip-file fileb://common-layer.zip \
+          --query Version \
+          --output text)
+
+      - echo Layer Version: $LAYER_VERSION
+
+      - echo Updating User Lambda Code
+      - aws lambda update-function-code \
+          --function-name user-service \
+          --zip-file fileb://user-service.zip
+
+      - echo Updating Order Lambda Code
+      - aws lambda update-function-code \
+          --function-name order-service \
+          --zip-file fileb://order-service.zip
+
+      - echo Updating Layer Attachment
+      - aws lambda update-function-configuration \
+          --function-name user-service \
+          --layers arn:aws:lambda:ap-south-1:YOUR_ACCOUNT_ID:layer:common-utils-layer:$LAYER_VERSION
+
+      - aws lambda update-function-configuration \
+          --function-name order-service \
+          --layers arn:aws:lambda:ap-south-1:YOUR_ACCOUNT_ID:layer:common-utils-layer:$LAYER_VERSION
