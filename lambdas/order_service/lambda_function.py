@@ -9,9 +9,7 @@ response=Response()
 def lambda_handler(event,context):
 
 
-    log.info(
-       "User lambda started"
-    )
+    
 
 
     user={
